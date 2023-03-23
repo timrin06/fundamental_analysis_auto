@@ -12,9 +12,9 @@ cap_list = {}
 q1 = 0.25
 q3 = 0.75
 q = ""
-errors = []
 
 
+balanced = {"prices" : 7, "profitability" : 6, "health" : 5, "dividends" : 2, "growth" : 4}
 #prices
 for i in symbol_list:
     price = requests.get("https://query1.finance.yahoo.com/v10/finance/quoteSummary/"+ i +"?modules=price", cookies=cookies, headers=headers)
@@ -29,7 +29,6 @@ def p_gp():
     for i in symbol_list:
         cap = cap_list[i]
         incomeStatementHistoryQuarterly = requests.get("https://query1.finance.yahoo.com/v10/finance/quoteSummary/"+ i +"?modules=incomeStatementHistory"+q, cookies=cookies, headers=headers)
-        #print(i)
         gp = json.loads(incomeStatementHistoryQuarterly.text)["quoteSummary"]["result"][0]["incomeStatementHistory"+q]["incomeStatementHistory"][0]["grossProfit"]["raw"]
         #if gp == 0:
             #print(i)
@@ -49,7 +48,7 @@ def p_gp():
     print(np.median(avg))
     print(mean)
     for i in multiplicators:
-        multi_list[i] = mean / multiplicators[i]
+        multi_list[i] = mean / multiplicators[i] / balanced["prices"]
     #(pd.DataFrame(data=multi_list, index=[0]).T).to_excel('1.xlsx')
     return [multi_list, multiplicators]
 def p_s():
@@ -75,7 +74,7 @@ def p_s():
     print(np.median(avg))
     print(mean)
     for i in multiplicators:
-        multi_list[i] = mean / multiplicators[i]
+        multi_list[i] = mean / multiplicators[i] / balanced["prices"]
     #(pd.DataFrame(data=multi_list, index=[0]).T).to_excel('2.xlsx')
     return [multi_list, multiplicators]
 def p_b():
@@ -102,7 +101,7 @@ def p_b():
     print(np.median(avg))
     print(mean)
     for i in multiplicators:
-        multi_list[i] = mean / multiplicators[i]
+        multi_list[i] = mean / multiplicators[i] / balanced["prices"]
     #(pd.DataFrame(data=multi_list, index=[0]).T).to_excel('3.xlsx')
     return [multi_list, multiplicators]
 def p_e():
@@ -145,9 +144,9 @@ def p_e():
     print(mean_p, mean_m)
     for i in multiplicators:
         if multiplicators[i] < 0:
-            multi_list[i] = mean_m / multiplicators[i] * (-1)
+            multi_list[i] = mean_m / multiplicators[i] * (-1) / balanced["prices"]
         else:
-            multi_list[i] = mean_p / multiplicators[i]
+            multi_list[i] = mean_p / multiplicators[i] / balanced["prices"]
     #(pd.DataFrame(data=multi_list, index=[0]).T).to_excel('4.xlsx')
     return [multi_list, multiplicators]
 def p_e1():
@@ -183,54 +182,37 @@ def fwd_p_e():
     print("fwd")
     multi_list = {}
     multiplicators = {}
-    data_p = []
-    data_m = []
-    avg_p = []
-    avg_m = []
+    data = []
+    avg = []
+    errors = []
     for i in symbol_list:
         cap = cap_list[i]
-        earningsTrend = requests.get("https://query1.finance.yahoo.com/v10/finance/quoteSummary/"+ i +"?modules=earningsTrend", cookies=cookies, headers=headers)
         defaultKeyStatistics = requests.get("https://query1.finance.yahoo.com/v10/finance/quoteSummary/"+ i +"?modules=defaultKeyStatistics", cookies=cookies, headers=headers)
-        e = json.loads(earningsTrend.text)["quoteSummary"]["result"][0]["earningsTrend"]["trend"][0]["earningsEstimate"]["growth"]
-        if e == {} or e["raw"] == 0:
+        p_e = json.loads(defaultKeyStatistics.text)["quoteSummary"]["result"][0]["defaultKeyStatistics"]["forwardPE"]
+        if p_e == {}:
             errors.append(i)
             print("F  " + i)
+            multiplicators[i] = 0
             continue
         else:
-            e = e["raw"]
+            p_e = p_e["raw"]
         #print(gp, cap, i)
-        if e < 0:
-            data_m.append(e)
-        else:
-            data_p.append(e)
-        multiplicators[i] = e
+        data.append(p_e)
+        multiplicators[i] = p_e
     print(multiplicators)
-    #(pd.DataFrame(data=multi_list, index=[0]).T).to_excel('4-gp.xlsx')
-    #print(avg_a, avg_std)
+    # (pd.DataFrame(data=multi_list, index=[0]).T).to_excel('3-b.xlsx')
+    # print(avg_a, avg_std)
     for i in multiplicators:
-        if multiplicators[i] < 0:
-            if multiplicators[i] > np.quantile(data_m, q1) and multiplicators[i] < np.quantile(data_m, q3):
-                avg_m.append(multiplicators[i])
-            elif len(data_m) < 4:
-                avg_m = data_m
-        else:
-            if multiplicators[i] > np.quantile(data_p, q1) and multiplicators[i] < np.quantile(data_p, q3):
-                avg_p.append(multiplicators[i])
-            elif len(data_p) < 4:
-                avg_p = data_p
-    mean_p = np.mean(avg_p)
-    mean_m = np.mean(avg_m)
-    print(np.median(avg_p), np.median(avg_m))
-    print(mean_p, mean_m)
+        if multiplicators[i] > np.quantile(data, q1) and multiplicators[i] < np.quantile(data, q3):
+            avg.append(multiplicators[i])
+    mean = np.mean(avg)
+    print(np.median(avg))
+    print(mean)
     for i in multiplicators:
-        if multiplicators[i] < 0:
-            multi_list[i] = multiplicators[i] * (-1) / mean_m
-        else:
-            multi_list[i] = multiplicators[i] / mean_p
+        multi_list[i] = mean / multiplicators[i] / balanced["prices"]
+    # (pd.DataFrame(data=multi_list, index=[0]).T).to_excel('3.xlsx')
     for i in errors:
-        multiplicators[i] = 0
         multi_list[i] = 0
-    #(pd.DataFrame(data=multi_list, index=[0]).T).to_excel('4.xlsx')
     return [multi_list, multiplicators]
 def peg():
     print("peg")
@@ -274,9 +256,9 @@ def peg():
     print(mean_p, mean_m)
     for i in multiplicators:
         if multiplicators[i] < 0:
-            multi_list[i] = mean_m / multiplicators[i] * (-1)
+            multi_list[i] = mean_m / multiplicators[i] * (-1) / balanced["prices"]
         else:
-            multi_list[i] = mean_p / multiplicators[i]
+            multi_list[i] = mean_p / multiplicators[i] / balanced["prices"]
     #(pd.DataFrame(data=multi_list, index=[0]).T).to_excel('4.xlsx')
     return [multi_list, multiplicators]
 
@@ -320,12 +302,11 @@ def p_fcf():
     print(mean_p, mean_m)
     for i in multiplicators:
         if multiplicators[i] < 0:
-            multi_list[i] = mean_m / multiplicators[i] * (-1)
+            multi_list[i] = mean_m / multiplicators[i] * (-1) / balanced["prices"]
         else:
-            multi_list[i] = mean_p / multiplicators[i]
+            multi_list[i] = mean_p / multiplicators[i] / balanced["prices"]
     #(pd.DataFrame(data=multi_list, index=[0]).T).to_excel('4.xlsx')
     return [multi_list, multiplicators]
-
 
 #marginal
 def roa():
@@ -356,12 +337,12 @@ def roa():
         if multiplicators[i] < 0:
             if multiplicators[i] > np.quantile(data_m, q1) and multiplicators[i] < np.quantile(data_m, q3):
                 avg_m.append(multiplicators[i])
-            elif len(data_m) < 2:
+            elif len(data_m) < 4:
                 avg_m = data_m[0]
         else:
             if multiplicators[i] > np.quantile(data_p, q1) and multiplicators[i] < np.quantile(data_p, q3):
                 avg_p.append(multiplicators[i])
-            elif len(data_p) < 2:
+            elif len(data_p) < 4:
                 avg_p = data_p[0]
     mean_p = np.mean(avg_p)
     mean_m = np.mean(avg_m)
@@ -369,9 +350,9 @@ def roa():
     print(mean_p, mean_m)
     for i in multiplicators:
         if multiplicators[i] < 0:
-            multi_list[i] = multiplicators[i] / mean_m * (-1)
+            multi_list[i] = multiplicators[i] / mean_m * (-1) / balanced["profitability"]
         else:
-            multi_list[i] = multiplicators[i] / mean_p
+            multi_list[i] = multiplicators[i] / mean_p / balanced["profitability"]
     # (pd.DataFrame(data=multi_list, index=[0]).T).to_excel('4.xlsx')
     return [multi_list, multiplicators]
 def roe():
@@ -415,9 +396,9 @@ def roe():
     print(mean_p, mean_m)
     for i in multiplicators:
         if multiplicators[i] < 0:
-            multi_list[i] = multiplicators[i] / mean_m * (-1)
+            multi_list[i] = multiplicators[i] / mean_m * (-1) / balanced["profitability"]
         else:
-            multi_list[i] = multiplicators[i] / mean_p
+            multi_list[i] = multiplicators[i] / mean_p / balanced["profitability"]
     # (pd.DataFrame(data=multi_list, index=[0]).T).to_excel('4.xlsx')
     return [multi_list, multiplicators]
 def oper_marg():
@@ -442,11 +423,11 @@ def oper_marg():
     print(np.median(avg))
     print(mean)
     for i in multiplicators:
-        multi_list[i] = multiplicators[i] / mean
+        multi_list[i] = multiplicators[i] / mean / balanced["profitability"]
     #(pd.DataFrame(data=multi_list, index=[0]).T).to_excel('1.xlsx')
     return [multi_list, multiplicators]
 def gross_marg():
-    print("oper_marg")
+    print("gross_marg")
     multiplicators = {}
     multi_list = {}
     data = []
@@ -467,7 +448,7 @@ def gross_marg():
     print(np.median(avg))
     print(mean)
     for i in multiplicators:
-        multi_list[i] = multiplicators[i] / mean
+        multi_list[i] = multiplicators[i] / mean / balanced["profitability"]
     #(pd.DataFrame(data=multi_list, index=[0]).T).to_excel('1.xlsx')
     return [multi_list, multiplicators]
 def prof_marg():
@@ -492,7 +473,7 @@ def prof_marg():
     print(np.median(avg))
     print(mean)
     for i in multiplicators:
-        multi_list[i] = multiplicators[i] / mean
+        multi_list[i] = multiplicators[i] / mean / balanced["profitability"]
     #(pd.DataFrame(data=multi_list, index=[0]).T).to_excel('1.xlsx')
     return [multi_list, multiplicators]
 def roi():
@@ -524,21 +505,21 @@ def roi():
             if multiplicators[i] > np.quantile(data_m, q1) and multiplicators[i] < np.quantile(data_m, q3):
                 avg_m.append(multiplicators[i])
             elif len(data_m) < 2:
-                avg_m = data_m[0]
+                avg_m = data_m
         else:
             if multiplicators[i] > np.quantile(data_p, q1) and multiplicators[i] < np.quantile(data_p, q3):
                 avg_p.append(multiplicators[i])
             elif len(data_p) < 2:
-                avg_p = data_p[0]
+                avg_p = data_p
     mean_p = np.mean(avg_p)
     mean_m = np.mean(avg_m)
     print(np.median(avg_p), np.median(avg_m))
     print(mean_p, mean_m)
     for i in multiplicators:
         if multiplicators[i] < 0:
-            multi_list[i] = multiplicators[i] / mean_m * (-1)
+            multi_list[i] = multiplicators[i] / mean_m * (-1) / balanced["profitability"]
         else:
-            multi_list[i] = multiplicators[i] / mean_p
+            multi_list[i] = multiplicators[i] / mean_p / balanced["profitability"]
     # (pd.DataFrame(data=multi_list, index=[0]).T).to_excel('4.xlsx')
     return [multi_list, multiplicators]
 
@@ -594,23 +575,25 @@ def ev_s():
             if multiplicators[i] > np.quantile(data_m, q1) and multiplicators[i] < np.quantile(data_m, q3):
                 avg_m.append(multiplicators[i])
             elif len(data_m) < 2:
-                avg_m = data_m[0]
+                avg_m = data_m
         else:
             if multiplicators[i] > np.quantile(data_p, q1) and multiplicators[i] < np.quantile(data_p, q3):
                 avg_p.append(multiplicators[i])
             elif len(data_p) < 2:
-                avg_p = data_p[0]
+                avg_p = data_p
     mean_p = np.mean(avg_p)
     mean_m = np.mean(avg_m)
     print(np.median(avg_p), np.median(avg_m))
     print(mean_p, mean_m)
     for i in multiplicators:
         if multiplicators[i] < 0:
-            multi_list[i] = mean_m / multiplicators[i] * (-1)
+            multi_list[i] = mean_m / multiplicators[i] * (-1) / balanced["profitability"]
         else:
-            multi_list[i] = mean_p / multiplicators[i]
+            multi_list[i] = mean_p / multiplicators[i] / balanced["profitability"]
     # (pd.DataFrame(data=multi_list, index=[0]).T).to_excel('4.xlsx')
     return [multi_list, multiplicators]
+
+#health
 def deb_ass():
     print("deb_ass")
     multiplicators = {}
@@ -626,7 +609,6 @@ def deb_ass():
         deb_ass = deb / ass
         data.append(deb_ass)
         multiplicators[i] = deb_ass
-        print(deb_ass)
     print(multiplicators)
     #(pd.DataFrame(data=multi_list, index=[0]).T).to_excel('1-gp.xlsx')
     #print(avg_a, avg_std)
@@ -637,8 +619,55 @@ def deb_ass():
     print(np.median(avg))
     print(mean)
     for i in multiplicators:
-        multi_list[i] = mean / multiplicators[i]
+        multi_list[i] = mean / multiplicators[i] / balanced["health"]
     #(pd.DataFrame(data=multi_list, index=[0]).T).to_excel('1.xlsx')
+    return [multi_list, multiplicators]
+def deb_ebit():
+    print("deb_ebit")
+    multi_list = {}
+    multiplicators = {}
+    data_p = []
+    data_m = []
+    avg_p = []
+    avg_m = []
+    for i in symbol_list:
+        incomeStatementHistoryQuarterly = requests.get("https://query1.finance.yahoo.com/v10/finance/quoteSummary/" + i + "?modules=incomeStatementHistory" + q, cookies=cookies, headers=headers)
+        balanceSheetHistoryQuarterly = requests.get("https://query1.finance.yahoo.com/v10/finance/quoteSummary/" + i + "?modules=balanceSheetHistory" + q,cookies=cookies, headers=headers)
+        deb = json.loads(balanceSheetHistoryQuarterly.text)["quoteSummary"]["result"][0]["balanceSheetHistory" + q]["balanceSheetStatements"][0]["totalLiab"]["raw"]
+
+        # print(i)
+        ebit = json.loads(incomeStatementHistoryQuarterly.text)["quoteSummary"]["result"][0]["incomeStatementHistory"+q]["incomeStatementHistory"][0]["ebit"]["raw"]
+        deb_ebit = deb / ebit
+        # print(gp, cap, i)
+        if deb_ebit < 0:
+            data_m.append(deb_ebit)
+        else:
+            data_p.append(deb_ebit)
+        multiplicators[i] = deb_ebit
+    print(multiplicators)
+    # (pd.DataFrame(data=multi_list, index=[0]).T).to_excel('4-gp.xlsx')
+    # print(avg_a, avg_std)
+    for i in multiplicators:
+        if multiplicators[i] < 0:
+            if multiplicators[i] > np.quantile(data_m, q1) and multiplicators[i] < np.quantile(data_m, q3):
+                avg_m.append(multiplicators[i])
+            elif len(data_m) < 2:
+                avg_m = data_m[0]
+        else:
+            if multiplicators[i] > np.quantile(data_p, q1) and multiplicators[i] < np.quantile(data_p, q3):
+                avg_p.append(multiplicators[i])
+            elif len(data_p) < 2:
+                avg_p = data_p[0]
+    mean_p = np.mean(avg_p)
+    mean_m = np.mean(avg_m)
+    print(np.median(avg_p), np.median(avg_m))
+    print(mean_p, mean_m)
+    for i in multiplicators:
+        if multiplicators[i] < 0:
+            multi_list[i] = mean_m / multiplicators[i] * (-1) / balanced["health"]
+        else:
+            multi_list[i] = mean_p / multiplicators[i] / balanced["health"]
+    # (pd.DataFrame(data=multi_list, index=[0]).T).to_excel('4.xlsx')
     return [multi_list, multiplicators]
 def quickRatio():
     print("quickRatio")
@@ -663,7 +692,7 @@ def quickRatio():
     print(np.median(avg))
     print(mean)
     for i in multiplicators:
-        multi_list[i] = mean / multiplicators[i]
+        multi_list[i] = mean / multiplicators[i] / balanced["health"]
     #(pd.DataFrame(data=multi_list, index=[0]).T).to_excel('1.xlsx')
     return [multi_list, multiplicators]
 def currentRatio():
@@ -689,13 +718,290 @@ def currentRatio():
     print(np.median(avg))
     print(mean)
     for i in multiplicators:
-        multi_list[i] = mean / multiplicators[i]
+        multi_list[i] = mean / multiplicators[i] / balanced["health"]
+    #(pd.DataFrame(data=multi_list, index=[0]).T).to_excel('1.xlsx')
+    return [multi_list, multiplicators]
+def deb_growth():
+    print("deb_growth")
+    multi_list = {}
+    multiplicators = {}
+    data_p = []
+    data_m = []
+    avg_p = []
+    avg_m = []
+    for i in symbol_list:
+        balanceSheetHistoryQuarterly = requests.get("https://query1.finance.yahoo.com/v10/finance/quoteSummary/" + i + "?modules=balanceSheetHistory" + q,cookies=cookies, headers=headers)
+        deb = json.loads(balanceSheetHistoryQuarterly.text)["quoteSummary"]["result"][0]["balanceSheetHistory" + q]["balanceSheetStatements"]
+        # print(i)
+        deb_avg = 1 - deb[0]["totalLiab"]["raw"]/deb[2]["totalLiab"]["raw"]
+        # print(gp, cap, i)
+        if deb_avg < 0:
+            data_m.append(deb_avg)
+        else:
+            data_p.append(deb_avg)
+        multiplicators[i] = deb_avg
+    print(multiplicators)
+    # (pd.DataFrame(data=multi_list, index=[0]).T).to_excel('4-gp.xlsx')
+    # print(avg_a, avg_std)
+    for i in multiplicators:
+        if multiplicators[i] < 0:
+            if multiplicators[i] > np.quantile(data_m, q1) and multiplicators[i] < np.quantile(data_m, q3):
+                avg_m.append(multiplicators[i])
+            elif len(data_m) < 2:
+                avg_m = data_m
+        else:
+            if multiplicators[i] > np.quantile(data_p, q1) and multiplicators[i] < np.quantile(data_p, q3):
+                avg_p.append(multiplicators[i])
+            elif len(data_p) < 2:
+                avg_p = data_p
+    mean_p = np.mean(avg_p)
+    mean_m = np.mean(avg_m)
+    print(np.median(avg_p), np.median(avg_m))
+    print(mean_p, mean_m)
+    for i in multiplicators:
+        if multiplicators[i] < 0:
+            multi_list[i] = multiplicators[i] / mean_m * (-1) / balanced["health"]
+        else:
+            multi_list[i] = multiplicators[i] / mean_p  / balanced["health"]
+    # (pd.DataFrame(data=multi_list, index=[0]).T).to_excel('4.xlsx')
+    return [multi_list, multiplicators]
+def q_growth_e():
+    print("q_growth_e")
+    multi_list = {}
+    multiplicators = {}
+    data_p = []
+    data_m = []
+    avg_p = []
+    avg_m = []
+    for i in symbol_list:
+        incomeStatementHistoryQuarterly = requests.get("https://query1.finance.yahoo.com/v10/finance/quoteSummary/" + i + "?modules=incomeStatementHistoryQuarterly" + q,cookies=cookies, headers=headers)
+        e = json.loads(incomeStatementHistoryQuarterly.text)["quoteSummary"]["result"][0]["incomeStatementHistoryQuarterly"]["incomeStatementHistory"]
+        # print(i)
+        k = e[0]["netIncome"]["raw"] / e[1]["netIncome"]["raw"]
+        if k < 0:
+            if e[0]["netIncome"]["raw"] < 0 and e[1]["netIncome"]["raw"] > 0:
+                q_growth_e = (-1) * k
+            else:
+                q_growth_e = 1 / k
+        else:
+            if e[0]["netIncome"]["raw"] < 0:
+                q_growth_e = 1 - k
+            else:
+                q_growth_e = k - 1
+        # print(gp, cap, i)
+        if q_growth_e < 0:
+            data_m.append(q_growth_e)
+        else:
+            data_p.append(q_growth_e)
+        multiplicators[i] = q_growth_e
+    print(multiplicators)
+    # (pd.DataFrame(data=multi_list, index=[0]).T).to_excel('4-gp.xlsx')
+    # print(avg_a, avg_std)
+    for i in multiplicators:
+        if multiplicators[i] < 0:
+            if multiplicators[i] > np.quantile(data_m, q1) and multiplicators[i] < np.quantile(data_m, q3):
+                avg_m.append(multiplicators[i])
+            elif len(data_m) < 2:
+                avg_m = data_m
+        else:
+            if multiplicators[i] > np.quantile(data_p, q1) and multiplicators[i] < np.quantile(data_p, q3):
+                avg_p.append(multiplicators[i])
+            elif len(data_p) < 2:
+                avg_p = data_p
+    mean_p = np.mean(avg_p)
+    mean_m = np.mean(avg_m)
+    print(np.median(avg_p), np.median(avg_m))
+    print(mean_p, mean_m)
+    for i in multiplicators:
+        if multiplicators[i] < 0:
+            multi_list[i] = multiplicators[i]/ mean_m  * (-1) / balanced["growth"]
+        else:
+            multi_list[i] = multiplicators[i] / mean_p  / balanced["growth"]
+    # (pd.DataFrame(data=multi_list, index=[0]).T).to_excel('4.xlsx')
+    return [multi_list, multiplicators]
+def q_growth_s():
+    print("q_growth_s")
+    multi_list = {}
+    multiplicators = {}
+    data_p = []
+    data_m = []
+    avg_p = []
+    avg_m = []
+    for i in symbol_list:
+        incomeStatementHistoryQuarterly = requests.get("https://query1.finance.yahoo.com/v10/finance/quoteSummary/" + i + "?modules=incomeStatementHistoryQuarterly" + q,cookies=cookies, headers=headers)
+        e = json.loads(incomeStatementHistoryQuarterly.text)["quoteSummary"]["result"][0]["incomeStatementHistoryQuarterly"]["incomeStatementHistory"]
+        # print(i)
+        q_growth_s = e[0]["totalRevenue"]["raw"] /  e[1]["totalRevenue"]["raw"] - 1
+        # print(gp, cap, i)
+        if q_growth_s < 0:
+            data_m.append(q_growth_s)
+        else:
+            data_p.append(q_growth_s)
+        multiplicators[i] = q_growth_s
+    print(multiplicators)
+    # (pd.DataFrame(data=multi_list, index=[0]).T).to_excel('4-gp.xlsx')
+    # print(avg_a, avg_std)
+    for i in multiplicators:
+        if multiplicators[i] < 0:
+            if multiplicators[i] > np.quantile(data_m, q1) and multiplicators[i] < np.quantile(data_m, q3):
+                avg_m.append(multiplicators[i])
+            elif len(data_m) < 2:
+                avg_m = data_m
+        else:
+            if multiplicators[i] > np.quantile(data_p, q1) and multiplicators[i] < np.quantile(data_p, q3):
+                avg_p.append(multiplicators[i])
+            elif len(data_p) < 2:
+                avg_p = data_p
+    mean_p = np.mean(avg_p)
+    mean_m = np.mean(avg_m)
+    print(np.median(avg_p), np.median(avg_m))
+    print(mean_p, mean_m)
+    for i in multiplicators:
+        if multiplicators[i] < 0:
+            multi_list[i] = multiplicators[i]/ mean_m  * (-1) / balanced["growth"]
+        else:
+            multi_list[i] = multiplicators[i] / mean_p / balanced["growth"]
+    # (pd.DataFrame(data=multi_list, index=[0]).T).to_excel('4.xlsx')
+    return [multi_list, multiplicators]
+
+def y_growth_e():
+    print("y_growth_e")
+    multi_list = {}
+    multiplicators = {}
+    data_p = []
+    data_m = []
+    avg_p = []
+    avg_m = []
+    for i in symbol_list:
+        incomeStatementHistoryQuarterly = requests.get("https://query1.finance.yahoo.com/v10/finance/quoteSummary/" + i + "?modules=incomeStatementHistory" + q,cookies=cookies, headers=headers)
+        e = json.loads(incomeStatementHistoryQuarterly.text)["quoteSummary"]["result"][0]["incomeStatementHistory"]["incomeStatementHistory"]
+        # print(i)
+        k = e[0]["netIncome"]["raw"]/ e[1]["netIncome"]["raw"]
+        if k< 0:
+            if e[0]["netIncome"]["raw"] < 0 and e[1]["netIncome"]["raw"] > 0:
+                y_growth_e = 1/k
+                print(i)
+            else:
+                y_growth_e = (-1)*k
+                print(i, " else")
+        else:
+            if e[0]["netIncome"]["raw"] < 0:
+                y_growth_e = 1 - k
+            else:
+                y_growth_e = k - 1
+
+        # print(gp, cap, i)
+        if y_growth_e < 0:
+            data_m.append(y_growth_e)
+        else:
+            data_p.append(y_growth_e)
+        multiplicators[i] = y_growth_e
+    print(multiplicators)
+    # (pd.DataFrame(data=multi_list, index=[0]).T).to_excel('4-gp.xlsx')
+    # print(avg_a, avg_std)
+    for i in multiplicators:
+        if multiplicators[i] < 0:
+            if multiplicators[i] > np.quantile(data_m, q1) and multiplicators[i] < np.quantile(data_m, q3):
+                avg_m.append(multiplicators[i])
+            elif len(data_m) < 2:
+                avg_m = data_m
+        else:
+            if multiplicators[i] > np.quantile(data_p, q1) and multiplicators[i] < np.quantile(data_p, q3):
+                avg_p.append(multiplicators[i])
+            elif len(data_p) < 2:
+                avg_p = data_p
+    mean_p = np.mean(avg_p)
+    mean_m = np.mean(avg_m)
+    print(np.median(avg_p), np.median(avg_m))
+    print(mean_p, mean_m)
+    for i in multiplicators:
+        if multiplicators[i] < 0:
+            multi_list[i] = multiplicators[i]/ mean_m  * (-1) / balanced["growth"]
+        else:
+            multi_list[i] = multiplicators[i] / mean_p  / balanced["growth"]
+    # (pd.DataFrame(data=multi_list, index=[0]).T).to_excel('4.xlsx')
+    return [multi_list, multiplicators]
+def y_growth_s():
+    print("y_growth_s")
+    multi_list = {}
+    multiplicators = {}
+    data_p = []
+    data_m = []
+    avg_p = []
+    avg_m = []
+    for i in symbol_list:
+        incomeStatementHistoryQuarterly = requests.get("https://query1.finance.yahoo.com/v10/finance/quoteSummary/" + i + "?modules=incomeStatementHistory" + q,cookies=cookies, headers=headers)
+        e = json.loads(incomeStatementHistoryQuarterly.text)["quoteSummary"]["result"][0]["incomeStatementHistory"]["incomeStatementHistory"]
+        # print(i)
+        y_growth_s = e[0]["totalRevenue"]["raw"]/ e[1]["totalRevenue"]["raw"] - 1
+        # print(gp, cap, i)
+        if y_growth_s < 0:
+            data_m.append(y_growth_s)
+        else:
+            data_p.append(y_growth_s)
+        multiplicators[i] = y_growth_s
+    print(multiplicators)
+    # (pd.DataFrame(data=multi_list, index=[0]).T).to_excel('4-gp.xlsx')
+    # print(avg_a, avg_std)
+    for i in multiplicators:
+        if multiplicators[i] < 0:
+            if multiplicators[i] > np.quantile(data_m, q1) and multiplicators[i] < np.quantile(data_m, q3):
+                avg_m.append(multiplicators[i])
+            elif len(data_m) < 4:
+                avg_m = data_m
+        else:
+            if multiplicators[i] > np.quantile(data_p, q1) and multiplicators[i] < np.quantile(data_p, q3):
+                avg_p.append(multiplicators[i])
+            elif len(data_p) < 4:
+                avg_p = data_p
+    mean_p = np.mean(avg_p)
+    mean_m = np.mean(avg_m)
+    print(np.median(avg_p), np.median(avg_m))
+    print(mean_p, mean_m)
+    for i in multiplicators:
+        if multiplicators[i] < 0:
+            multi_list[i] = multiplicators[i]/ mean_m  * (-1) / balanced["growth"]
+        else:
+            multi_list[i] = multiplicators[i] / mean_p / balanced["growth"]
+    # (pd.DataFrame(data=multi_list, index=[0]).T).to_excel('4.xlsx')
+    return [multi_list, multiplicators]
+def div_yield():
+    print("div_yield")
+    multiplicators = {}
+    multi_list = {}
+    data = []
+    avg = []
+    errors = []
+    for i in symbol_list:
+        financialData = requests.get("https://query1.finance.yahoo.com/v10/finance/quoteSummary/" + i + "?modules=defaultKeyStatistics", cookies=cookies, headers=headers)
+        # print(i)
+
+        div_yield = json.loads(financialData.text)["quoteSummary"]["result"][0]["defaultKeyStatistics"]["yield"]
+        if div_yield == {}:
+            errors.append(i)
+            multiplicators[i] = 0
+            continue
+        data.append(div_yield["raw"])
+        multiplicators[i] = div_yield
+    print(multiplicators)
+    #(pd.DataFrame(data=multi_list, index=[0]).T).to_excel('1-gp.xlsx')
+    #print(avg_a, avg_std)
+    for i in multiplicators:
+        if len(data) == 0:
+            avg = [0]
+        else:
+            if multiplicators[i] > np.quantile(data, q1) and multiplicators[i] < np.quantile(data, q3):
+                avg.append(multiplicators[i])
+    mean = np.mean(avg)
+    print(np.median(avg))
+    print(mean)
+    for i in multiplicators:
+        multi_list[i] = mean / multiplicators[i] / balanced["dividends"]
+    for i in errors:
+        multi_list[i] = 0
+
     #(pd.DataFrame(data=multi_list, index=[0]).T).to_excel('1.xlsx')
     return [multi_list, multiplicators]
 
-print(p_e())
-print(p_e1())
-
-#print(quickRatio(), currentRatio())
-#print(errors)
-print(sum_rang([p_gp(), p_s(), p_b(), p_e(), peg(), p_fcf(), prof_marg(), oper_marg(), gross_marg(), roe(), roa(), ev_s(), deb_ass(), quickRatio(), currentRatio()], "prices"))
+print(sum_rang([p_gp(), p_s(), p_b(), p_e(), fwd_p_e(), peg(), p_fcf(), prof_marg(), oper_marg(), gross_marg(), roe(), roa(), ev_s(), deb_ass(), quickRatio(), currentRatio(), deb_ebit(), deb_growth(),div_yield()], "prices"))
+#print(sum_rang([p_gp(), p_s(), p_b(), p_e(), fwd_p_e(), peg(), p_fcf(), prof_marg(), oper_marg(), gross_marg(), roe(), roa(), ev_s(), deb_ass(), quickRatio(), currentRatio(), deb_ebit(), deb_growth(), q_growth_e(), q_growth_s(), y_growth_e(), y_growth_s(), div_yield()], "prices"))
