@@ -14,7 +14,7 @@ q3 = 0.75
 q = ""
 
 
-balanced = {"prices" : 7, "profitability" : 6, "health" : 5, "dividends" : 2, "growth" : 4}
+balanced = {"prices" : 7, "profitability" : 6, "health" : 5, "dividends" : 2, "growth" : 2}
 #prices
 for i in symbol_list:
     price = requests.get("https://query1.finance.yahoo.com/v10/finance/quoteSummary/"+ i +"?modules=price", cookies=cookies, headers=headers)
@@ -129,15 +129,17 @@ def p_e():
     #print(avg_a, avg_std)
     for i in multiplicators:
         if multiplicators[i] < 0:
-            if multiplicators[i] > np.quantile(data_m, q1) and multiplicators[i] < np.quantile(data_m, q3):
-                avg_m.append(multiplicators[i])
-            elif len(data_m) < 4:
+            if len(data_m) < 4:
                 avg_m = data_m
+            else:
+                if multiplicators[i] > np.quantile(data_m, q1) and multiplicators[i] < np.quantile(data_m, q3):
+                    avg_m.append(multiplicators[i])
         else:
-            if multiplicators[i] > np.quantile(data_p, q1) and multiplicators[i] < np.quantile(data_p, q3):
-                avg_p.append(multiplicators[i])
-            elif len(data_p) < 4:
+            if len(data_p) < 4:
                 avg_p = data_p
+            else:
+                if multiplicators[i] > np.quantile(data_p, q1) and multiplicators[i] < np.quantile(data_p, q3):
+                    avg_p.append(multiplicators[i])
     mean_p = np.mean(avg_p)
     mean_m = np.mean(avg_m)
     print(np.median(avg_p), np.median(avg_m))
@@ -241,15 +243,17 @@ def peg():
     #print(avg_a, avg_std)
     for i in multiplicators:
         if multiplicators[i] < 0:
-            if multiplicators[i] > np.quantile(data_m, q1) and multiplicators[i] < np.quantile(data_m, q3):
-                avg_m.append(multiplicators[i])
-            elif len(data_m) < 4:
+            if len(data_m) < 4:
                 avg_m = data_m
+            else:
+                if multiplicators[i] > np.quantile(data_m, q1) and multiplicators[i] < np.quantile(data_m, q3):
+                    avg_m.append(multiplicators[i])
         else:
-            if multiplicators[i] > np.quantile(data_p, q1) and multiplicators[i] < np.quantile(data_p, q3):
-                avg_p.append(multiplicators[i])
-            elif len(data_p) < 4:
+            if len(data_p) < 4:
                 avg_p = data_p
+            else:
+                if multiplicators[i] > np.quantile(data_p, q1) and multiplicators[i] < np.quantile(data_p, q3):
+                    avg_p.append(multiplicators[i])
     mean_p = np.mean(avg_p)
     mean_m = np.mean(avg_m)
     print(np.median(avg_p), np.median(avg_m))
@@ -287,15 +291,17 @@ def p_fcf():
     #print(avg_a, avg_std)
     for i in multiplicators:
         if multiplicators[i] < 0:
-            if multiplicators[i] > np.quantile(data_m, q1) and multiplicators[i] < np.quantile(data_m, q3):
-                avg_m.append(multiplicators[i])
-            elif len(data_m) < 2:
-                avg_m = data_m[0]
+            if len(data_m) < 4:
+                avg_m = data_m
+            else:
+                if multiplicators[i] > np.quantile(data_m, q1) and multiplicators[i] < np.quantile(data_m, q3):
+                    avg_m.append(multiplicators[i])
         else:
-            if multiplicators[i] > np.quantile(data_p, q1) and multiplicators[i] < np.quantile(data_p, q3):
-                avg_p.append(multiplicators[i])
-            elif len(data_p) < 2:
-                avg_p = data_p[0]
+            if len(data_p) < 4:
+                avg_p = data_p
+            else:
+                if multiplicators[i] > np.quantile(data_p, q1) and multiplicators[i] < np.quantile(data_p, q3):
+                    avg_p.append(multiplicators[i])
     mean_p = np.mean(avg_p)
     mean_m = np.mean(avg_m)
     print(np.median(avg_p), np.median(avg_m))
@@ -335,15 +341,17 @@ def roa():
     # print(avg_a, avg_std)
     for i in multiplicators:
         if multiplicators[i] < 0:
-            if multiplicators[i] > np.quantile(data_m, q1) and multiplicators[i] < np.quantile(data_m, q3):
-                avg_m.append(multiplicators[i])
-            elif len(data_m) < 4:
-                avg_m = data_m[0]
+            if len(data_m) < 4:
+                avg_m = data_m
+            else:
+                if multiplicators[i] > np.quantile(data_m, q1) and multiplicators[i] < np.quantile(data_m, q3):
+                    avg_m.append(multiplicators[i])
         else:
-            if multiplicators[i] > np.quantile(data_p, q1) and multiplicators[i] < np.quantile(data_p, q3):
-                avg_p.append(multiplicators[i])
-            elif len(data_p) < 4:
-                avg_p = data_p[0]
+            if len(data_p) < 4:
+                avg_p = data_p
+            else:
+                if multiplicators[i] > np.quantile(data_p, q1) and multiplicators[i] < np.quantile(data_p, q3):
+                    avg_p.append(multiplicators[i])
     mean_p = np.mean(avg_p)
     mean_m = np.mean(avg_m)
     print(np.median(avg_p), np.median(avg_m))
@@ -381,15 +389,17 @@ def roe():
     # print(avg_a, avg_std)
     for i in multiplicators:
         if multiplicators[i] < 0:
-            if multiplicators[i] > np.quantile(data_m, q1) and multiplicators[i] < np.quantile(data_m, q3):
-                avg_m.append(multiplicators[i])
-            elif len(data_m) < 2:
-                avg_m = data_m[0]
+            if len(data_m) < 4:
+                avg_m = data_m
+            else:
+                if multiplicators[i] > np.quantile(data_m, q1) and multiplicators[i] < np.quantile(data_m, q3):
+                    avg_m.append(multiplicators[i])
         else:
-            if multiplicators[i] > np.quantile(data_p, q1) and multiplicators[i] < np.quantile(data_p, q3):
-                avg_p.append(multiplicators[i])
-            elif len(data_p) < 2:
-                avg_p = data_p[0]
+            if len(data_p) < 4:
+                avg_p = data_p
+            else:
+                if multiplicators[i] > np.quantile(data_p, q1) and multiplicators[i] < np.quantile(data_p, q3):
+                    avg_p.append(multiplicators[i])
     mean_p = np.mean(avg_p)
     mean_m = np.mean(avg_m)
     print(np.median(avg_p), np.median(avg_m))
@@ -502,15 +512,17 @@ def roi():
     # print(avg_a, avg_std)
     for i in multiplicators:
         if multiplicators[i] < 0:
-            if multiplicators[i] > np.quantile(data_m, q1) and multiplicators[i] < np.quantile(data_m, q3):
-                avg_m.append(multiplicators[i])
-            elif len(data_m) < 2:
+            if len(data_m) < 4:
                 avg_m = data_m
+            else:
+                if multiplicators[i] > np.quantile(data_m, q1) and multiplicators[i] < np.quantile(data_m, q3):
+                    avg_m.append(multiplicators[i])
         else:
-            if multiplicators[i] > np.quantile(data_p, q1) and multiplicators[i] < np.quantile(data_p, q3):
-                avg_p.append(multiplicators[i])
-            elif len(data_p) < 2:
+            if len(data_p) < 4:
                 avg_p = data_p
+            else:
+                if multiplicators[i] > np.quantile(data_p, q1) and multiplicators[i] < np.quantile(data_p, q3):
+                    avg_p.append(multiplicators[i])
     mean_p = np.mean(avg_p)
     mean_m = np.mean(avg_m)
     print(np.median(avg_p), np.median(avg_m))
@@ -523,29 +535,7 @@ def roi():
     # (pd.DataFrame(data=multi_list, index=[0]).T).to_excel('4.xlsx')
     return [multi_list, multiplicators]
 
-def sum_rang(l, name):
-    super_list = {}
-    print(symbol_list)
-    multi_list = {}
-    multiplicators = {}
-    for i in symbol_list:
-        sum_symbol = 0
-        all_symbols = []
-        for n in l:
-            #print(i, n)
-            sum_symbol += n[0][i]
-            #print(n[1][i])
-            all_symbols.append(n[1][i])
-            all_symbols.append(n[0][i])
-            #print(all_symbols)
-        all_symbols.append(sum_symbol)
-        #print(all_symbols)
-        super_list[i] = all_symbols
-        #multi_list[i] = sum_symbol
-    #print('ok')
-    #return (pd.DataFrame(data=super_list, columns=["p_gp", "score", "p_gp", "score", "p_gp", "score", "p_gp", "score", "p_gp", "score", "p_gp", "score", "p_gp", "score", "p_gp", "score", "p_gp", "score", "p_gp", "score", "p_gp", "score", "p_gp", "score"]).T).to_excel(name + '.xlsx')
-    print(pd.DataFrame(data=super_list))
-    return (pd.DataFrame(data=super_list).T).to_excel(name + '.xlsx')
+
 def ev_s():
     print("ev_s")
     multi_list = {}
@@ -572,15 +562,17 @@ def ev_s():
     # print(avg_a, avg_std)
     for i in multiplicators:
         if multiplicators[i] < 0:
-            if multiplicators[i] > np.quantile(data_m, q1) and multiplicators[i] < np.quantile(data_m, q3):
-                avg_m.append(multiplicators[i])
-            elif len(data_m) < 2:
+            if len(data_m) < 4:
                 avg_m = data_m
+            else:
+                if multiplicators[i] > np.quantile(data_m, q1) and multiplicators[i] < np.quantile(data_m, q3):
+                    avg_m.append(multiplicators[i])
         else:
-            if multiplicators[i] > np.quantile(data_p, q1) and multiplicators[i] < np.quantile(data_p, q3):
-                avg_p.append(multiplicators[i])
-            elif len(data_p) < 2:
+            if len(data_p) < 4:
                 avg_p = data_p
+            else:
+                if multiplicators[i] > np.quantile(data_p, q1) and multiplicators[i] < np.quantile(data_p, q3):
+                    avg_p.append(multiplicators[i])
     mean_p = np.mean(avg_p)
     mean_m = np.mean(avg_m)
     print(np.median(avg_p), np.median(avg_m))
@@ -649,15 +641,17 @@ def deb_ebit():
     # print(avg_a, avg_std)
     for i in multiplicators:
         if multiplicators[i] < 0:
-            if multiplicators[i] > np.quantile(data_m, q1) and multiplicators[i] < np.quantile(data_m, q3):
-                avg_m.append(multiplicators[i])
-            elif len(data_m) < 2:
-                avg_m = data_m[0]
+            if len(data_m) < 4:
+                avg_m = data_m
+            else:
+                if multiplicators[i] > np.quantile(data_m, q1) and multiplicators[i] < np.quantile(data_m, q3):
+                    avg_m.append(multiplicators[i])
         else:
-            if multiplicators[i] > np.quantile(data_p, q1) and multiplicators[i] < np.quantile(data_p, q3):
-                avg_p.append(multiplicators[i])
-            elif len(data_p) < 2:
-                avg_p = data_p[0]
+            if len(data_p) < 4:
+                avg_p = data_p
+            else:
+                if multiplicators[i] > np.quantile(data_p, q1) and multiplicators[i] < np.quantile(data_p, q3):
+                    avg_p.append(multiplicators[i])
     mean_p = np.mean(avg_p)
     mean_m = np.mean(avg_m)
     print(np.median(avg_p), np.median(avg_m))
@@ -745,15 +739,17 @@ def deb_growth():
     # print(avg_a, avg_std)
     for i in multiplicators:
         if multiplicators[i] < 0:
-            if multiplicators[i] > np.quantile(data_m, q1) and multiplicators[i] < np.quantile(data_m, q3):
-                avg_m.append(multiplicators[i])
-            elif len(data_m) < 2:
+            if len(data_m) < 4:
                 avg_m = data_m
+            else:
+                if multiplicators[i] > np.quantile(data_m, q1) and multiplicators[i] < np.quantile(data_m, q3):
+                    avg_m.append(multiplicators[i])
         else:
-            if multiplicators[i] > np.quantile(data_p, q1) and multiplicators[i] < np.quantile(data_p, q3):
-                avg_p.append(multiplicators[i])
-            elif len(data_p) < 2:
+            if len(data_p) < 4:
                 avg_p = data_p
+            else:
+                if multiplicators[i] > np.quantile(data_p, q1) and multiplicators[i] < np.quantile(data_p, q3):
+                    avg_p.append(multiplicators[i])
     mean_p = np.mean(avg_p)
     mean_m = np.mean(avg_m)
     print(np.median(avg_p), np.median(avg_m))
@@ -801,13 +797,9 @@ def q_growth_e():
         if multiplicators[i] < 0:
             if multiplicators[i] > np.quantile(data_m, q1) and multiplicators[i] < np.quantile(data_m, q3):
                 avg_m.append(multiplicators[i])
-            elif len(data_m) < 2:
-                avg_m = data_m
         else:
             if multiplicators[i] > np.quantile(data_p, q1) and multiplicators[i] < np.quantile(data_p, q3):
                 avg_p.append(multiplicators[i])
-            elif len(data_p) < 2:
-                avg_p = data_p
     mean_p = np.mean(avg_p)
     mean_m = np.mean(avg_m)
     print(np.median(avg_p), np.median(avg_m))
@@ -843,15 +835,17 @@ def q_growth_s():
     # print(avg_a, avg_std)
     for i in multiplicators:
         if multiplicators[i] < 0:
-            if multiplicators[i] > np.quantile(data_m, q1) and multiplicators[i] < np.quantile(data_m, q3):
-                avg_m.append(multiplicators[i])
-            elif len(data_m) < 2:
+            if len(data_m) < 4:
                 avg_m = data_m
+            else:
+                if multiplicators[i] > np.quantile(data_m, q1) and multiplicators[i] < np.quantile(data_m, q3):
+                    avg_m.append(multiplicators[i])
         else:
-            if multiplicators[i] > np.quantile(data_p, q1) and multiplicators[i] < np.quantile(data_p, q3):
-                avg_p.append(multiplicators[i])
-            elif len(data_p) < 2:
+            if len(data_p) < 4:
                 avg_p = data_p
+            else:
+                if multiplicators[i] > np.quantile(data_p, q1) and multiplicators[i] < np.quantile(data_p, q3):
+                    avg_p.append(multiplicators[i])
     mean_p = np.mean(avg_p)
     mean_m = np.mean(avg_m)
     print(np.median(avg_p), np.median(avg_m))
@@ -876,19 +870,17 @@ def y_growth_e():
         incomeStatementHistoryQuarterly = requests.get("https://query1.finance.yahoo.com/v10/finance/quoteSummary/" + i + "?modules=incomeStatementHistory" + q,cookies=cookies, headers=headers)
         e = json.loads(incomeStatementHistoryQuarterly.text)["quoteSummary"]["result"][0]["incomeStatementHistory"]["incomeStatementHistory"]
         # print(i)
-        k = e[0]["netIncome"]["raw"]/ e[1]["netIncome"]["raw"]
-        if k< 0:
+        if e[0]["netIncome"]["raw"]/ e[1]["netIncome"]["raw"]< 0:
             if e[0]["netIncome"]["raw"] < 0 and e[1]["netIncome"]["raw"] > 0:
-                y_growth_e = 1/k
-                print(i)
+                y_growth_e = e[0]["netIncome"]["raw"]-e[1]["netIncome"]["raw"]
             else:
                 y_growth_e = (-1)*k
                 print(i, " else")
         else:
             if e[0]["netIncome"]["raw"] < 0:
-                y_growth_e = 1 - k
+                y_growth_e = 1 - e[0]["netIncome"]["raw"]/ e[1]["netIncome"]["raw"]
             else:
-                y_growth_e = k - 1
+                y_growth_e = e[0]["netIncome"]["raw"]/ e[1]["netIncome"]["raw"] - 1
 
         # print(gp, cap, i)
         if y_growth_e < 0:
@@ -903,13 +895,9 @@ def y_growth_e():
         if multiplicators[i] < 0:
             if multiplicators[i] > np.quantile(data_m, q1) and multiplicators[i] < np.quantile(data_m, q3):
                 avg_m.append(multiplicators[i])
-            elif len(data_m) < 2:
-                avg_m = data_m
         else:
             if multiplicators[i] > np.quantile(data_p, q1) and multiplicators[i] < np.quantile(data_p, q3):
                 avg_p.append(multiplicators[i])
-            elif len(data_p) < 2:
-                avg_p = data_p
     mean_p = np.mean(avg_p)
     mean_m = np.mean(avg_m)
     print(np.median(avg_p), np.median(avg_m))
@@ -945,15 +933,17 @@ def y_growth_s():
     # print(avg_a, avg_std)
     for i in multiplicators:
         if multiplicators[i] < 0:
-            if multiplicators[i] > np.quantile(data_m, q1) and multiplicators[i] < np.quantile(data_m, q3):
-                avg_m.append(multiplicators[i])
-            elif len(data_m) < 4:
+            if len(data_m) < 4:
                 avg_m = data_m
+            else:
+                if multiplicators[i] > np.quantile(data_m, q1) and multiplicators[i] < np.quantile(data_m, q3):
+                    avg_m.append(multiplicators[i])
         else:
-            if multiplicators[i] > np.quantile(data_p, q1) and multiplicators[i] < np.quantile(data_p, q3):
-                avg_p.append(multiplicators[i])
-            elif len(data_p) < 4:
+            if len(data_p) < 4:
                 avg_p = data_p
+            else:
+                if multiplicators[i] > np.quantile(data_p, q1) and multiplicators[i] < np.quantile(data_p, q3):
+                    avg_p.append(multiplicators[i])
     mean_p = np.mean(avg_p)
     mean_m = np.mean(avg_m)
     print(np.median(avg_p), np.median(avg_m))
@@ -1000,8 +990,79 @@ def div_yield():
     for i in errors:
         multi_list[i] = 0
 
-    #(pd.DataFrame(data=multi_list, index=[0]).T).to_excel('1.xlsx')
     return [multi_list, multiplicators]
+def payout():
+    print("payout")
+    multiplicators = {}
+    data_p = []
+    data_m = []
+    avg_p = []
+    avg_m = []
+    for i in symbol_list:
+        incomeStatementHistoryQuarterly = requests.get(
+            "https://query1.finance.yahoo.com/v10/finance/quoteSummary/" + i + "?modules=incomeStatementHistory" + q,
+            cookies=cookies, headers=headers)
+        e = json.loads(incomeStatementHistoryQuarterly.text)["quoteSummary"]["result"][0]["incomeStatementHistory"][
+            "incomeStatementHistory"]
+        # print(i)
+        y_growth_s = e[0]["totalRevenue"]["raw"] / e[1]["totalRevenue"]["raw"] - 1
+        # print(gp, cap, i)
+        if y_growth_s < 0:
+            data_m.append(y_growth_s)
+        else:
+            data_p.append(y_growth_s)
+        multiplicators[i] = y_growth_s
+    print(multiplicators)
+    # (pd.DataFrame(data=multi_list, index=[0]).T).to_excel('4-gp.xlsx')
+    # print(avg_a, avg_std)
+    for i in multiplicators:
+        if multiplicators[i] < 0:
+            if len(data_m) < 4:
+                avg_m = data_m
+            else:
+                if multiplicators[i] > np.quantile(data_m, q1) and multiplicators[i] < np.quantile(data_m, q3):
+                    avg_m.append(multiplicators[i])
+        else:
+            if len(data_p) < 4:
+                avg_p = data_p
+            else:
+                if multiplicators[i] > np.quantile(data_p, q1) and multiplicators[i] < np.quantile(data_p, q3):
+                    avg_p.append(multiplicators[i])
+    mean_p = np.mean(avg_p)
+    mean_m = np.mean(avg_m)
+    print(np.median(avg_p), np.median(avg_m))
+    print(mean_p, mean_m)
+    for i in multiplicators:
+        if multiplicators[i] < 0:
+            multi_list[i] = multiplicators[i] / mean_m * (-1) / balanced["growth"]
+        else:
+            multi_list[i] = multiplicators[i] / mean_p / balanced["growth"]
+    # (pd.DataFrame(data=multi_list, index=[0]).T).to_excel('4.xlsx')
+    return [multi_list, multiplicators]
+def sum_rang(l, name):
+    super_list = {}
+    print(symbol_list)
+    multi_list = {}
+    multiplicators = {}
+    for i in symbol_list:
+        sum_symbol = 0
+        all_symbols = []
+        for n in l:
+            #print(i, n)
+            sum_symbol += n[0][i]
+            #print(n[1][i])
+            all_symbols.append(n[1][i])
+            all_symbols.append(n[0][i])
+            #print(all_symbols)
+        all_symbols.append(sum_symbol)
+        #print(all_symbols)
+        super_list[i] = all_symbols
+        #multi_list[i] = sum_symbol
+    #print('ok')
+    #return (pd.DataFrame(data=super_list, columns=["p_gp", "score", "p_gp", "score", "p_gp", "score", "p_gp", "score", "p_gp", "score", "p_gp", "score", "p_gp", "score", "p_gp", "score", "p_gp", "score", "p_gp", "score", "p_gp", "score", "p_gp", "score"]).T).to_excel(name + '.xlsx')
+    print(pd.DataFrame(data=super_list))
+    return (pd.DataFrame(data=super_list, index=[['p_gp()', 'p_gp()', 'p_s()', 'p_s()', 'p_b()', 'p_b()', 'p_e()', 'p_e()', 'fwd_p_e()', 'fwd_p_e()', 'peg()', 'peg()', 'p_fcf()', 'p_fcf()', 'prof_marg()', 'prof_marg()', 'oper_marg()', 'oper_marg()', 'gross_marg()', 'gross_marg()', 'roe()', 'roe()', 'roa()', 'roa()', 'ev_s()', 'ev_s()', 'deb_ass()', 'deb_ass()', 'quickRatio()', 'quickRatio()', 'currentRatio()', 'currentRatio()', 'deb_ebit()', 'deb_ebit()', 'deb_growth()', 'deb_growth()', 'div_yield()', 'div_yield()', 'q_growth_s()', 'q_growth_s()', 'y_growth_s()', 'y_growth_s()', 'result']]).T).to_excel(name + '.xlsx')
 
-print(sum_rang([p_gp(), p_s(), p_b(), p_e(), fwd_p_e(), peg(), p_fcf(), prof_marg(), oper_marg(), gross_marg(), roe(), roa(), ev_s(), deb_ass(), quickRatio(), currentRatio(), deb_ebit(), deb_growth(),div_yield()], "prices"))
+print(p_e())
+print(sum_rang([p_gp(), p_s(), p_b(), p_e(), fwd_p_e(), peg(), p_fcf(), prof_marg(), oper_marg(), gross_marg(), roe(), roa(), ev_s(), deb_ass(), quickRatio(), currentRatio(), deb_ebit(), deb_growth(), div_yield(), q_growth_s(), y_growth_s()], "prices"))
 #print(sum_rang([p_gp(), p_s(), p_b(), p_e(), fwd_p_e(), peg(), p_fcf(), prof_marg(), oper_marg(), gross_marg(), roe(), roa(), ev_s(), deb_ass(), quickRatio(), currentRatio(), deb_ebit(), deb_growth(), q_growth_e(), q_growth_s(), y_growth_e(), y_growth_s(), div_yield()], "prices"))
